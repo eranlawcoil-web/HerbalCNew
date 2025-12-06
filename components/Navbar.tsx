@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Leaf } from 'lucide-react';
 import { useData } from './DataProvider';
@@ -23,9 +22,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onLogoClick, announcementHeight 
     setIsMobileMenuOpen(false);
     const element = document.getElementById(id);
     if (element) {
-      // With Fixed Navbar, we just scroll to element. 
-      // The sections now have padding-top to account for the navbar.
-      element.scrollIntoView({ behavior: 'smooth' });
+      // Offset for sticky header
+      const offset = 150; 
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
     } else if (id === '#') {
        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -35,18 +42,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onLogoClick, announcementHeight 
     { name: 'ראשי', id: 'home' }, 
     { name: 'אודות', id: 'about' },
     { name: 'מרכז הידע', id: 'knowledge-center' },
-    // Testimonials removed as requested
     { name: 'קליניקה', id: 'contact' },
   ];
 
   return (
     <nav 
-      className={`fixed left-0 right-0 z-50 transition-all duration-300 border-b ${
+      className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
         isScrolled 
           ? 'bg-white/95 backdrop-blur-md py-2 shadow-sm border-nature-200 text-nature-900' 
           : 'bg-white/90 backdrop-blur-sm py-3 border-transparent text-nature-900 shadow-sm'
       }`}
-      style={{ top: announcementHeight }}
+      // Top is 0 because it sticks to the top of the viewport (or below announcement bar naturally in flow)
     >
       <div className="container mx-auto px-6 flex justify-between items-center">
         {/* Logo & Tagline */}
@@ -70,7 +76,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onLogoClick, announcementHeight 
           )}
         </div>
 
-        {/* Desktop Menu */}
+        {/* Desktop Menu - Breakpoint adjusted to XL to prevent overlap */}
         <div className="hidden xl:flex gap-8 items-center flex-nowrap">
           {navLinks.map((link) => (
             <button 
