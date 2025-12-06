@@ -35,7 +35,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onLogoClick, announcementHeight 
     { name: 'ראשי', id: 'home' }, 
     { name: 'אודות', id: 'about' },
     { name: 'מרכז הידע', id: 'knowledge-center' },
-    { name: 'המלצות', id: 'testimonials' },
+    // Testimonials removed as requested
     { name: 'קליניקה', id: 'contact' },
   ];
 
@@ -71,12 +71,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onLogoClick, announcementHeight 
         </div>
 
         {/* Desktop Menu */}
-        <div className="hidden lg:flex gap-8 items-center">
+        <div className="hidden xl:flex gap-8 items-center flex-nowrap">
           {navLinks.map((link) => (
             <button 
               key={link.name} 
               onClick={() => scrollToSection(link.id)}
-              className="font-medium text-lg relative group text-nature-800 hover:text-nature-darkSage transition-colors"
+              className="font-medium text-lg relative group text-nature-800 hover:text-nature-darkSage transition-colors whitespace-nowrap"
             >
               {link.name}
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-nature-darkSage transition-all group-hover:w-full"></span>
@@ -84,14 +84,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onLogoClick, announcementHeight 
           ))}
           <button 
              onClick={() => scrollToSection('contact')}
-             className="px-6 py-2 rounded-full font-bold transition-all transform hover:scale-105 bg-earth-accent text-earth-900 hover:bg-nature-900 hover:text-white shadow-sm"
+             className="px-6 py-2 rounded-full font-bold transition-all transform hover:scale-105 bg-earth-accent text-earth-900 hover:bg-nature-900 hover:text-white shadow-sm whitespace-nowrap"
           >
             צור קשר
           </button>
         </div>
 
         {/* Mobile Toggle */}
-        <div className="flex items-center gap-4 lg:hidden">
+        <div className="flex items-center gap-4 xl:hidden">
            {contactData.siteTagline && (
               <h1 className="text-sm font-black text-nature-900 leading-none md:hidden">
                 {contactData.siteTagline}
@@ -107,7 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onLogoClick, announcementHeight 
       </div>
 
       {/* Mobile Menu Overlay */}
-      <div className={`lg:hidden fixed inset-0 bg-nature-900 z-40 flex flex-col items-center justify-center gap-8 transition-transform duration-300 ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`xl:hidden fixed inset-0 bg-nature-900 z-40 flex flex-col items-center justify-center gap-8 transition-transform duration-300 ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         {navLinks.map((link) => (
           <button 
             key={link.name} 

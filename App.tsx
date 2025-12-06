@@ -5,7 +5,7 @@ import { HeroCarousel } from './components/HeroCarousel';
 import { ArticleViewer } from './components/ArticleViewer';
 import { AboutSection } from './components/AboutSection';
 import { ContactSection } from './components/ContactSection';
-import { TestimonialsSection } from './components/TestimonialsSection';
+// import { TestimonialsSection } from './components/TestimonialsSection'; // Hidden for now
 import { TermsModal } from './components/TermsModal';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { AdminDashboard } from './components/AdminDashboard';
@@ -349,7 +349,7 @@ const MainApp: React.FC = () => {
         </div>
       </section>
 
-      <TestimonialsSection />
+      {/* <TestimonialsSection />  -- Hidden for now */}
       <ContactSection />
 
       {/* FIXED FOOTER */}
