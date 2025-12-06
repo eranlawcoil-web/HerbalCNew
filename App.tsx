@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, ReactNode } from 'react';
+import React, { Component, useState, useMemo, useEffect, ReactNode } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroCarousel } from './components/HeroCarousel';
 import { ArticleViewer } from './components/ArticleViewer';
@@ -21,14 +21,8 @@ interface ErrorBoundaryState {
   hasError: boolean;
 }
 
-class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  public state: ErrorBoundaryState = { hasError: false };
-  public props: ErrorBoundaryProps;
-
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.props = props;
-  }
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  state: ErrorBoundaryState = { hasError: false };
 
   static getDerivedStateFromError(error: any) {
     return { hasError: true };
@@ -208,7 +202,7 @@ const MainApp: React.FC = () => {
         </div>
 
         {/* STICKY CONTROL BAR - Sticks below navbar */}
-        <div className="sticky top-[76px] z-40 bg-nature-100/95 backdrop-blur-md border-b border-nature-200 shadow-sm py-4">
+        <div className="sticky top-[72px] z-40 bg-nature-100/95 backdrop-blur-md border-b border-nature-200 shadow-sm py-4">
           <div className="absolute -top-4 left-0 right-0 h-4 bg-nature-100/95"></div> {/* Visual bridge */}
 
           <div className="container mx-auto px-4 max-w-7xl flex flex-col md:flex-row gap-4 items-center justify-between relative z-10">

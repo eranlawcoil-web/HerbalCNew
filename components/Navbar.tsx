@@ -49,12 +49,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onLogoClick, announcementHeight 
     <nav 
       className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
         isScrolled 
-          ? 'bg-white/95 backdrop-blur-md py-2 shadow-sm border-nature-200 text-nature-900' 
-          : 'bg-white/90 backdrop-blur-sm py-3 border-transparent text-nature-900 shadow-sm'
+          ? 'bg-white/95 backdrop-blur-md py-2 shadow-sm border-nature-200 text-nature-900 h-[72px]' 
+          : 'bg-white/90 backdrop-blur-sm py-3 border-transparent text-nature-900 shadow-sm h-[80px]'
       }`}
-      // Top is 0 because it sticks to the top of the viewport (or below announcement bar naturally in flow)
     >
-      <div className="container mx-auto px-6 flex justify-between items-center">
+      <div className="container mx-auto px-6 flex justify-between items-center h-full">
         {/* Logo & Tagline */}
         <div 
           onClick={onLogoClick}
@@ -76,7 +75,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onLogoClick, announcementHeight 
           )}
         </div>
 
-        {/* Desktop Menu - Breakpoint adjusted to XL to prevent overlap */}
+        {/* Desktop Menu */}
         <div className="hidden xl:flex gap-8 items-center flex-nowrap">
           {navLinks.map((link) => (
             <button 
