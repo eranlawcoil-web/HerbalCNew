@@ -1,7 +1,7 @@
 
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { Article, SlideData, AboutData, ContactData, AnalyticsSession, DataContextType, InboxMessage, GlobalSettings, Testimonial } from '../types';
-import { ARTICLES, HERO_SLIDES, ABOUT_DATA, CONTACT_DATA, GENERAL_ARTICLES, CASE_STUDIES, MOCK_ANALYTICS, MOCK_MESSAGES, GLOBAL_SETTINGS } from '../constants';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { Article, SlideData, AboutData, ContactData, Testimonial, AnalyticsSession, DataContextType, InboxMessage, GlobalSettings } from '../types';
+import { ARTICLES, HERO_SLIDES, ABOUT_DATA, CONTACT_DATA, GENERAL_ARTICLES, CASE_STUDIES, TESTIMONIALS, MOCK_ANALYTICS, MOCK_MESSAGES, GLOBAL_SETTINGS } from '../constants';
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
@@ -13,52 +13,18 @@ export const useData = () => {
   return context;
 };
 
-// --- EMAIL JS PLACEHOLDER ---
-// To enable real emails:
-// 1. Go to emailjs.com, create account
-// 2. Add 'npm install @emailjs/browser'
-// 3. Replace this function with real emailjs.send() calls
-const sendEmail = (templateParams: any, templateId: string = 'YOUR_TEMPLATE_ID') => {
-  console.log(`[EmailJS Simulation] Sending ${templateId} with:`, templateParams);
-  // Example implementation:
-  // emailjs.send('YOUR_SERVICE_ID', templateId, templateParams, 'YOUR_PUBLIC_KEY')
-};
-
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Load from LocalStorage or use Defaults
-  const loadState = <T,>(key: string, defaultVal: T): T => {
-    try {
-      const saved = localStorage.getItem(key);
-      return saved ? JSON.parse(saved) : defaultVal;
-    } catch (e) {
-      return defaultVal;
-    }
-  };
-
-  const [articles, setArticles] = useState<Article[]>(() => loadState('articles', ARTICLES));
-  const [generalArticles, setGeneralArticles] = useState<Article[]>(() => loadState('generalArticles', GENERAL_ARTICLES));
-  const [caseStudies, setCaseStudies] = useState<Article[]>(() => loadState('caseStudies', CASE_STUDIES));
-  const [slides, setSlides] = useState<SlideData[]>(() => loadState('slides', HERO_SLIDES));
-  const [aboutData, setAboutData] = useState<AboutData>(() => loadState('aboutData', ABOUT_DATA));
-  const [contactData, setContactData] = useState<ContactData>(() => loadState('contactData', CONTACT_DATA));
-  const [authorizedEmails, setAuthorizedEmails] = useState<string[]>(() => loadState('authorizedEmails', ['hilatams@gmail.com']));
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsSession[]>(() => loadState('analyticsData', MOCK_ANALYTICS));
-  const [messages, setMessages] = useState<InboxMessage[]>(() => loadState('messages', MOCK_MESSAGES));
-  const [globalSettings, setGlobalSettings] = useState<GlobalSettings>(() => loadState('globalSettings', GLOBAL_SETTINGS));
-  const [testimonials, setTestimonials] = useState<Testimonial[]>(() => loadState('testimonials', []));
-
-  // Save to LocalStorage on change
-  useEffect(() => localStorage.setItem('articles', JSON.stringify(articles)), [articles]);
-  useEffect(() => localStorage.setItem('generalArticles', JSON.stringify(generalArticles)), [generalArticles]);
-  useEffect(() => localStorage.setItem('caseStudies', JSON.stringify(caseStudies)), [caseStudies]);
-  useEffect(() => localStorage.setItem('slides', JSON.stringify(slides)), [slides]);
-  useEffect(() => localStorage.setItem('aboutData', JSON.stringify(aboutData)), [aboutData]);
-  useEffect(() => localStorage.setItem('contactData', JSON.stringify(contactData)), [contactData]);
-  useEffect(() => localStorage.setItem('authorizedEmails', JSON.stringify(authorizedEmails)), [authorizedEmails]);
-  useEffect(() => localStorage.setItem('analyticsData', JSON.stringify(analyticsData)), [analyticsData]);
-  useEffect(() => localStorage.setItem('messages', JSON.stringify(messages)), [messages]);
-  useEffect(() => localStorage.setItem('globalSettings', JSON.stringify(globalSettings)), [globalSettings]);
-  useEffect(() => localStorage.setItem('testimonials', JSON.stringify(testimonials)), [testimonials]);
+  const [articles, setArticles] = useState<Article[]>(ARTICLES); // Plants
+  const [generalArticles, setGeneralArticles] = useState<Article[]>(GENERAL_ARTICLES); // General Articles
+  const [caseStudies, setCaseStudies] = useState<Article[]>(CASE_STUDIES); // Case Studies
+  const [slides, setSlides] = useState<SlideData[]>(HERO_SLIDES);
+  const [aboutData, setAboutData] = useState<AboutData>(ABOUT_DATA);
+  const [contactData, setContactData] = useState<ContactData>(CONTACT_DATA);
+  const [authorizedEmails, setAuthorizedEmails] = useState<string[]>(['hilatams@gmail.com']);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(TESTIMONIALS);
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsSession[]>(MOCK_ANALYTICS);
+  const [messages, setMessages] = useState<InboxMessage[]>(MOCK_MESSAGES);
+  const [globalSettings, setGlobalSettings] = useState<GlobalSettings>(GLOBAL_SETTINGS);
 
   // Plant Functions
   const addArticle = (article: Article) => {
@@ -121,6 +87,19 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setAuthorizedEmails(prev => prev.filter(e => e !== email.toLowerCase()));
   };
 
+  // Testimonial Functions
+  const addTestimonial = (testimonial: Testimonial) => {
+    setTestimonials(prev => [testimonial, ...prev]);
+  };
+
+  const updateTestimonial = (id: string, updatedFields: Partial<Testimonial>) => {
+    setTestimonials(prev => prev.map(t => t.id === id ? { ...t, ...updatedFields } : t));
+  };
+
+  const deleteTestimonial = (id: string) => {
+    setTestimonials(prev => prev.filter(t => t.id !== id));
+  };
+
   // Analytics
   const logVisit = () => {
     const sources: ('Google' | 'Facebook' | 'Direct' | 'Instagram')[] = ['Google', 'Facebook', 'Direct', 'Instagram'];
@@ -152,14 +131,14 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
     setMessages(prev => [newMessage, ...prev]);
     
-    // Send Email Notification to Admin
-    sendEmail({
-        to_email: authorizedEmails[0], // Send to first admin
-        from_name: msg.name,
-        from_contact: msg.contact,
-        subject: msg.subject || msg.type,
-        message: msg.content
-    }, 'template_admin_notification');
+    // --- EMAIL SIMULATION ---
+    console.log(`📧 SENDING EMAIL TO ADMINS (${authorizedEmails.join(', ')}):
+    New ${msg.type} from ${msg.name}
+    Contact: ${msg.contact}
+    Subject: ${msg.subject || 'N/A'}
+    Content: ${msg.content || 'N/A'}
+    `);
+    // alert("Simulated Email Sent to Admins!");
   };
 
   const markMessageRead = (id: string) => {
@@ -174,10 +153,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setGlobalSettings(prev => ({ ...prev, ...settings }));
   };
 
-  const addTestimonial = (t: Testimonial) => {
-    setTestimonials(prev => [...prev, t]);
-  };
-
   return (
     <DataContext.Provider value={{
       articles,
@@ -187,10 +162,10 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       aboutData,
       contactData,
       authorizedEmails,
+      testimonials,
       analyticsData,
       messages,
       globalSettings,
-      testimonials,
       addArticle,
       updateArticle,
       deleteArticle,
@@ -205,12 +180,14 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       updateContact,
       addAdmin,
       removeAdmin,
+      addTestimonial,
+      updateTestimonial,
+      deleteTestimonial,
       logVisit,
       addMessage,
       markMessageRead,
       deleteMessage,
-      updateGlobalSettings,
-      addTestimonial
+      updateGlobalSettings
     }}>
       {children}
     </DataContext.Provider>

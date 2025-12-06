@@ -2,14 +2,14 @@
 import React, { useState, useRef } from 'react';
 import { X, Save, Plus, Trash2, Wand2, RefreshCw, Pencil, UserPlus, ShieldAlert, Check, FileText, Briefcase, Phone, MessageCircle, Calendar, Image as ImageIcon, Upload, Link as LinkIcon, Download, BarChart2, Eye, Clock, Search as SearchIcon, Mail, Settings, Bell, Megaphone } from 'lucide-react';
 import { useData } from './DataProvider';
-import { Article, TabContent } from '../types';
+import { Article, TabContent, Testimonial } from '../types';
 import { GoogleGenAI, Type } from '@google/genai';
 
 interface AdminDashboardProps {
   onClose: () => void;
 }
 
-const TABS = ['סליידר ראשי', 'אודות', 'ספריית הצמחים', 'מאמרים מקצועיים', 'מקרי אירוע', 'פרטי התקשרות', 'מנהלי מערכת', 'סטטיסטיקות', 'הודעות נכנסות', 'הגדרות אתר'];
+const TABS = ['סליידר ראשי', 'אודות', 'ספריית הצמחים', 'מאמרים מקצועיים', 'מקרי אירוע', 'המלצות', 'פרטי התקשרות', 'מנהלי מערכת', 'סטטיסטיקות', 'הודעות נכנסות', 'הגדרות אתר'];
 
 interface ImageSelectionControlProps {
   currentImage: string;
@@ -122,11 +122,12 @@ const cleanJson = (text: string) => {
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const { 
-    slides, aboutData, articles, generalArticles, caseStudies, authorizedEmails, contactData, analyticsData, messages, globalSettings,
+    slides, aboutData, articles, generalArticles, caseStudies, authorizedEmails, contactData, testimonials, analyticsData, messages, globalSettings,
     updateSlide, updateAbout, updateContact, addArticle, updateArticle, deleteArticle,
     addGeneralArticle, updateGeneralArticle, deleteGeneralArticle,
     addCaseStudy, updateCaseStudy, deleteCaseStudy,
     addAdmin, removeAdmin,
+    addTestimonial, updateTestimonial, deleteTestimonial,
     markMessageRead, deleteMessage, updateGlobalSettings
   } = useData();
   const [activeTab, setActiveTab] = useState(0);
@@ -135,16 +136,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
   const [editingType, setEditingType] = useState<'plant' | 'general' | 'case'>('plant');
   const [editForm, setEditForm] = useState<Partial<Article>>({});
+  const [editingTestimonialId, setEditingTestimonialId] = useState<string | null>(null);
+  const [testimonialForm, setTestimonialForm] = useState<Partial<Testimonial>>({});
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const unreadCount = messages.filter(m => !m.read).length;
 
   // --- API KEY SAFEGUARD ---
   const apiKey = process.env.API_KEY;
-  if (!apiKey && activeTab >= 2 && activeTab <= 4) {
+  if (!apiKey && activeTab >= 2 && activeTab <= 5) {
      console.warn("API Key is missing. AI features will be disabled.");
   }
 
-  const handleAiGeneration = async (type: 'plant' | 'general' | 'case') => {
+  const handleAiGeneration = async (type: 'plant' | 'general' | 'case' | 'testimonial') => {
     if (!apiKey) {
       alert("חסר מפתח API. לא ניתן להשתמש ב-AI.");
       return;
@@ -183,6 +186,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           },
           required: ['id', 'title', 'subtitle', 'description', 'tabs']
         };
+      } else if (type === 'testimonial') {
+         systemPrompt = `Generate a realistic client recommendation in Hebrew about "${aiPrompt || 'general treatment'}".`;
+         schema = {
+            type: Type.OBJECT,
+            properties: {
+              name: { type: Type.STRING },
+              city: { type: Type.STRING },
+              content: { type: Type.STRING },
+            },
+            required: ['name', 'city', 'content']
+         };
       }
 
       const result = await ai.models.generateContent({
@@ -202,6 +216,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       if (type === 'plant') addArticle({ ...newContent, image: imageUrl });
       else if (type === 'general') addGeneralArticle({ ...newContent, image: imageUrl });
       else if (type === 'case') addCaseStudy({ ...newContent, image: imageUrl });
+      else if (type === 'testimonial') addTestimonial({ id: `gen-${Date.now()}`, approved: true, date: new Date().toISOString().split('T')[0], ...newContent });
       
       setAiPrompt('');
     } catch (error) {
@@ -248,6 +263,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     setEditForm({ ...editForm, tabs: [...(editForm.tabs || []), newTab] });
   };
 
+  const startEditTestimonial = (testimonial: Testimonial) => {
+    setEditingTestimonialId(testimonial.id);
+    setTestimonialForm({ ...testimonial });
+  };
+  const saveTestimonialEdit = () => {
+    if (editingTestimonialId && testimonialForm) {
+      updateTestimonial(editingTestimonialId, testimonialForm);
+      setEditingTestimonialId(null);
+      setTestimonialForm({});
+    }
+  };
+
   const handleAddAdmin = (e: React.FormEvent) => {
     e.preventDefault();
     if (newAdminEmail) {
@@ -274,7 +301,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             {TABS.map((tab, idx) => (
               <button key={tab} onClick={() => setActiveTab(idx)} className={`w-full text-right p-3 rounded-lg transition-all flex justify-between items-center ${activeTab === idx ? 'bg-earth-accent text-earth-900 font-bold' : 'text-gray-400 hover:bg-earth-800'}`}>
                 {tab}
-                {idx === 8 && unreadCount > 0 && <span className="w-2 h-2 bg-red-500 rounded-full"></span>}
+                {idx === 9 && unreadCount > 0 && <span className="w-2 h-2 bg-red-500 rounded-full"></span>}
               </button>
             ))}
           </div>
@@ -339,6 +366,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           )}
 
           {activeTab === 5 && (
+             <div className="space-y-4">
+                <button onClick={() => handleAiGeneration('testimonial')} disabled={isGenerating} className="bg-earth-800 text-white px-4 py-2 rounded">צור המלצה פיקטיבית</button>
+                {testimonials.map(t => (
+                   <div key={t.id} className="p-4 bg-earth-900 rounded border border-earth-800 flex gap-4 items-center justify-between">
+                      <div className="flex gap-4 items-center">
+                        <img src={t.image || ''} className="w-10 h-10 rounded-full bg-gray-700" />
+                        <div><h4 className="text-white font-bold">{t.name}</h4><p className="text-gray-400 text-xs">{t.content.substring(0,50)}...</p></div>
+                      </div>
+                      <div className="flex gap-2">
+                         <button onClick={() => startEditTestimonial(t)} className="p-2 bg-earth-950 text-earth-accent rounded"><Pencil size={16} /></button>
+                         <button onClick={() => updateTestimonial(t.id, { approved: !t.approved })} className={`px-2 rounded text-xs ${t.approved ? 'bg-green-900 text-green-400' : 'bg-yellow-900 text-yellow-400'}`}>{t.approved ? 'מאושר' : 'ממתין'}</button>
+                         <button onClick={() => deleteTestimonial(t.id)} className="p-2 bg-earth-950 text-red-400 rounded"><Trash2 size={16} /></button>
+                      </div>
+                   </div>
+                ))}
+             </div>
+          )}
+
+          {activeTab === 6 && (
              <div className="bg-earth-900 p-6 rounded-xl border border-earth-800 space-y-4">
                 <input type="text" value={contactData.phone} onChange={(e) => updateContact({ phone: e.target.value })} className="w-full bg-earth-950 p-3 rounded text-white border border-earth-700" placeholder="Phone" />
                 <input type="text" value={contactData.whatsapp} onChange={(e) => updateContact({ whatsapp: e.target.value })} className="w-full bg-earth-950 p-3 rounded text-white border border-earth-700" placeholder="WhatsApp Number" />
@@ -348,7 +394,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
              </div>
           )}
 
-          {activeTab === 6 && (
+          {activeTab === 7 && (
             <div className="bg-earth-900 p-6 rounded-xl border border-earth-800 space-y-6">
               <h3 className="text-xl font-bold text-white">מנהלי מערכת מורשים</h3>
               <form onSubmit={handleAddAdmin} className="flex gap-2">
@@ -368,7 +414,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             </div>
           )}
 
-          {activeTab === 7 && (
+          {activeTab === 8 && (
             <div className="space-y-6">
                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="bg-earth-900 p-6 rounded-xl border border-earth-800 text-center">
@@ -411,7 +457,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             </div>
           )}
 
-          {activeTab === 8 && (
+          {activeTab === 9 && (
             <div className="bg-earth-900 rounded-xl border border-earth-800 overflow-hidden">
                {messages.length === 0 ? (
                  <div className="p-12 text-center text-gray-500">אין הודעות חדשות.</div>
@@ -445,7 +491,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             </div>
           )}
 
-          {activeTab === 9 && (
+          {activeTab === 10 && (
              <div className="bg-earth-900 p-6 rounded-xl border border-earth-800 space-y-6">
                 <h3 className="text-xl font-bold text-white flex items-center gap-2"><Megaphone size={20} /> הודעות מתפרצות (בר עליון)</h3>
                 
@@ -500,6 +546,43 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <button onClick={saveEdit} className="bg-earth-accent text-earth-900 px-6 py-2 rounded font-bold w-full">שמור</button>
               </div>
             </div>
+          )}
+
+          {editingTestimonialId && (
+             <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4">
+               <div className="bg-earth-900 w-full max-w-lg rounded-xl border border-earth-700 p-6 space-y-4">
+                  <h3 className="text-white font-bold">עריכת המלצה</h3>
+                  <input value={testimonialForm.name} onChange={e => setTestimonialForm({...testimonialForm, name: e.target.value})} className="w-full bg-earth-950 p-2 rounded text-white border border-earth-700" placeholder="שם מלא" />
+                  <input value={testimonialForm.city} onChange={e => setTestimonialForm({...testimonialForm, city: e.target.value})} className="w-full bg-earth-950 p-2 rounded text-white border border-earth-700" placeholder="עיר" />
+                  <textarea value={testimonialForm.content} onChange={e => setTestimonialForm({...testimonialForm, content: e.target.value})} className="w-full bg-earth-950 p-2 rounded text-white border border-earth-700" rows={4} placeholder="תוכן ההמלצה" />
+                  
+                  <div className="space-y-1">
+                     <label className="text-xs text-gray-500 block mb-1">תמונת ממליץ (אופציונלי)</label>
+                     <ImageSelectionControl currentImage={testimonialForm.image || ''} onImageSelect={(url) => setTestimonialForm({...testimonialForm, image: url})} contextString={testimonialForm.name} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                     <div>
+                        <label className="text-xs text-gray-500 block mb-1">תאריך יצירה</label>
+                        <input type="date" value={testimonialForm.date} onChange={e => setTestimonialForm({...testimonialForm, date: e.target.value})} className="w-full bg-earth-950 p-2 rounded text-white border border-earth-700" />
+                     </div>
+                     <div>
+                        <label className="text-xs text-gray-500 block mb-1">תאריך תפוגה (אופציונלי)</label>
+                        <input type="date" value={testimonialForm.expirationDate || ''} onChange={e => setTestimonialForm({...testimonialForm, expirationDate: e.target.value})} className="w-full bg-earth-950 p-2 rounded text-white border border-earth-700" />
+                     </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-white">
+                     <input type="checkbox" checked={testimonialForm.approved || false} onChange={e => setTestimonialForm({...testimonialForm, approved: e.target.checked})} className="w-4 h-4" />
+                     <span>מאושר לפרסום</span>
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
+                     <button onClick={() => setEditingTestimonialId(null)} className="flex-1 bg-earth-800 text-white py-2 rounded hover:bg-earth-700">ביטול</button>
+                     <button onClick={saveTestimonialEdit} className="flex-1 bg-earth-accent text-earth-900 py-2 rounded font-bold hover:bg-white">שמור שינויים</button>
+                  </div>
+               </div>
+             </div>
           )}
         </div>
       </div>
