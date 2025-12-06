@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Leaf } from 'lucide-react';
 import { useData } from './DataProvider';
@@ -22,8 +23,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onLogoClick, announcementHeight 
     setIsMobileMenuOpen(false);
     const element = document.getElementById(id);
     if (element) {
-      const y = element.getBoundingClientRect().top + window.scrollY - 100;
-      window.scrollTo({ top: y, behavior: 'smooth' });
+      // With Fixed Navbar, we just scroll to element. 
+      // The sections now have padding-top to account for the navbar.
+      element.scrollIntoView({ behavior: 'smooth' });
     } else if (id === '#') {
        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -33,34 +35,35 @@ export const Navbar: React.FC<NavbarProps> = ({ onLogoClick, announcementHeight 
     { name: 'ראשי', id: 'home' }, 
     { name: 'אודות', id: 'about' },
     { name: 'מרכז הידע', id: 'knowledge-center' },
+    // Testimonials removed as requested
     { name: 'קליניקה', id: 'contact' },
   ];
 
   return (
     <nav 
-      className={`sticky left-0 right-0 z-50 transition-all duration-300 border-b ${
+      className={`fixed left-0 right-0 z-50 transition-all duration-300 border-b ${
         isScrolled 
-          ? 'bg-white/95 backdrop-blur-md shadow-sm border-nature-200 text-nature-900 h-[76px]' 
-          : 'bg-white/90 backdrop-blur-sm border-transparent text-nature-900 shadow-sm h-[76px]'
+          ? 'bg-white/95 backdrop-blur-md py-2 shadow-sm border-nature-200 text-nature-900' 
+          : 'bg-white/90 backdrop-blur-sm py-3 border-transparent text-nature-900 shadow-sm'
       }`}
       style={{ top: announcementHeight }}
     >
-      <div className="container mx-auto px-6 h-full flex justify-between items-center">
+      <div className="container mx-auto px-6 flex justify-between items-center">
         {/* Logo & Tagline */}
         <div 
           onClick={onLogoClick}
-          className="flex flex-col xl:flex-row xl:items-center gap-1 xl:gap-6 cursor-pointer hover:opacity-80 transition-opacity flex-nowrap min-w-0"
+          className="flex flex-col xl:flex-row xl:items-center gap-1 xl:gap-6 cursor-pointer hover:opacity-80 transition-opacity"
           title="כניסת מנהל"
         >
-          <div className={`flex items-center gap-2 ${isScrolled ? 'text-nature-darkSage' : 'text-earth-accent'} shrink-0`}>
+          <div className={`flex items-center gap-2 ${isScrolled ? 'text-nature-darkSage' : 'text-earth-accent'}`}>
             <Leaf size={32} strokeWidth={2.5} />
             <span className="text-3xl font-serif font-bold leading-none tracking-tight">HerbalC</span>
           </div>
           
           {contactData.siteTagline && (
-            <div className="flex items-center gap-4 hidden xl:flex shrink-0">
-              <span className="inline-block w-[2px] h-8 bg-nature-200"></span>
-              <h1 className="text-xl font-sans font-black tracking-tight text-nature-900 leading-none">
+            <div className="flex items-center gap-4 hidden md:flex">
+              <span className="hidden xl:inline-block w-[2px] h-8 bg-nature-200"></span>
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-sans font-black tracking-tight text-nature-900 leading-none">
                 {contactData.siteTagline}
               </h1>
             </div>
@@ -68,12 +71,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onLogoClick, announcementHeight 
         </div>
 
         {/* Desktop Menu */}
-        <div className="hidden xl:flex gap-8 items-center shrink-0">
+        <div className="hidden xl:flex gap-8 items-center flex-nowrap">
           {navLinks.map((link) => (
             <button 
               key={link.name} 
               onClick={() => scrollToSection(link.id)}
-              className="font-medium text-lg relative group text-nature-800 hover:text-nature-darkSage transition-colors"
+              className="font-medium text-lg relative group text-nature-800 hover:text-nature-darkSage transition-colors whitespace-nowrap"
             >
               {link.name}
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-nature-darkSage transition-all group-hover:w-full"></span>
@@ -81,21 +84,21 @@ export const Navbar: React.FC<NavbarProps> = ({ onLogoClick, announcementHeight 
           ))}
           <button 
              onClick={() => scrollToSection('contact')}
-             className="px-6 py-2 rounded-full font-bold transition-all transform hover:scale-105 bg-earth-accent text-earth-900 hover:bg-nature-900 hover:text-white shadow-sm"
+             className="px-6 py-2 rounded-full font-bold transition-all transform hover:scale-105 bg-earth-accent text-earth-900 hover:bg-nature-900 hover:text-white shadow-sm whitespace-nowrap"
           >
             צור קשר
           </button>
         </div>
 
         {/* Mobile Toggle */}
-        <div className="flex items-center gap-4 xl:hidden min-w-0">
+        <div className="flex items-center gap-4 xl:hidden">
            {contactData.siteTagline && (
-              <h1 className="text-sm font-black text-nature-900 leading-none xl:hidden truncate">
+              <h1 className="text-sm font-black text-nature-900 leading-none md:hidden">
                 {contactData.siteTagline}
               </h1>
            )}
            <button 
-            className="text-nature-900 shrink-0"
+            className="text-nature-900"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? <X size={32} /> : <Menu size={32} />}

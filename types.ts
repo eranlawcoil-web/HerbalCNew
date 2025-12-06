@@ -1,5 +1,4 @@
 
-
 export interface TabContent {
   id: string;
   label: string;
@@ -42,6 +41,17 @@ export interface ContactData {
   siteTagline: string; // New Field for Site Title next to Logo
 }
 
+export interface Testimonial {
+  id: string;
+  name: string;
+  city: string;
+  content: string;
+  image?: string;
+  approved: boolean;
+  date: string;
+  expirationDate?: string; // Optional: When to stop showing this review
+}
+
 export interface AnalyticsSession {
   id: string;
   date: string; // ISO string
@@ -72,17 +82,6 @@ export interface GlobalSettings {
   }
 }
 
-export interface Testimonial {
-  id: string;
-  name: string;
-  city: string;
-  content: string;
-  date: string;
-  approved: boolean;
-  image?: string;
-  expirationDate?: string;
-}
-
 export interface DataContextType {
   articles: Article[]; // Plants
   generalArticles: Article[]; // General Articles
@@ -91,10 +90,10 @@ export interface DataContextType {
   aboutData: AboutData;
   contactData: ContactData;
   authorizedEmails: string[];
+  testimonials: Testimonial[];
   analyticsData: AnalyticsSession[];
   messages: InboxMessage[];
   globalSettings: GlobalSettings;
-  testimonials: Testimonial[];
   
   // Plant CRUD
   addArticle: (article: Article) => void;
@@ -118,6 +117,11 @@ export interface DataContextType {
   addAdmin: (email: string) => void;
   removeAdmin: (email: string) => void;
 
+  // Testimonials CRUD
+  addTestimonial: (testimonial: Testimonial) => void;
+  updateTestimonial: (id: string, testimonial: Partial<Testimonial>) => void;
+  deleteTestimonial: (id: string) => void;
+
   // Analytics
   logVisit: () => void;
 
@@ -126,7 +130,4 @@ export interface DataContextType {
   markMessageRead: (id: string) => void;
   deleteMessage: (id: string) => void;
   updateGlobalSettings: (settings: Partial<GlobalSettings>) => void;
-
-  // Testimonials
-  addTestimonial: (t: Testimonial) => void;
 }
