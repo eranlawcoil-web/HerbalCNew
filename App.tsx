@@ -1,4 +1,4 @@
-import React, { Component, useState, useMemo, useEffect, ReactNode } from 'react';
+import React, { useState, useMemo, useEffect, ReactNode } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroCarousel } from './components/HeroCarousel';
 import { ArticleViewer } from './components/ArticleViewer';
@@ -21,7 +21,7 @@ interface ErrorBoundaryState {
   hasError: boolean;
 }
 
-class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = { hasError: false };
 
   static getDerivedStateFromError(error: any) {
@@ -202,6 +202,7 @@ const MainApp: React.FC = () => {
         </div>
 
         {/* STICKY CONTROL BAR - Sticks below navbar */}
+        {/* Top value is Navbar Height (72px) + Announcement Height if active (approx) */}
         <div className="sticky top-[72px] z-40 bg-nature-100/95 backdrop-blur-md border-b border-nature-200 shadow-sm py-4">
           <div className="absolute -top-4 left-0 right-0 h-4 bg-nature-100/95"></div> {/* Visual bridge */}
 

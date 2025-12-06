@@ -66,9 +66,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onLogoClick, announcementHeight 
           </div>
           
           {contactData.siteTagline && (
-            <div className="flex items-center gap-4 hidden md:flex">
+            <div className="flex items-center gap-4 hidden xl:flex">
               <span className="hidden xl:inline-block w-[2px] h-8 bg-nature-200"></span>
-              <h1 className="text-xl md:text-2xl lg:text-3xl font-sans font-black tracking-tight text-nature-900 leading-none">
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-sans font-black tracking-tight text-nature-900 leading-none whitespace-nowrap">
                 {contactData.siteTagline}
               </h1>
             </div>
