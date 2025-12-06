@@ -1,11 +1,10 @@
 
-import React, { useState, useMemo, useEffect, ReactNode } from 'react';
+import React, { useState, useMemo, useEffect, ReactNode, Component } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroCarousel } from './components/HeroCarousel';
 import { ArticleViewer } from './components/ArticleViewer';
 import { AboutSection } from './components/AboutSection';
 import { ContactSection } from './components/ContactSection';
-import { TestimonialsSection } from './components/TestimonialsSection';
 import { TermsModal } from './components/TermsModal';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { AdminDashboard } from './components/AdminDashboard';
@@ -24,13 +23,9 @@ interface ErrorBoundaryState {
 }
 
 class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  // Explicitly declare state and props to avoid TypeScript errors
-  public state: ErrorBoundaryState = { hasError: false };
-  public props: ErrorBoundaryProps;
-
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.props = props;
+    this.state = { hasError: false };
   }
 
   static getDerivedStateFromError(error: any) {
@@ -65,7 +60,7 @@ const AnnouncementBar: React.FC = () => {
   const { text, bgColor, textColor } = globalSettings.announcementBar;
   return (
     <div 
-      className="fixed top-0 left-0 right-0 z-[60] w-full py-2 px-4 text-center text-sm md:text-base font-bold flex items-center justify-center gap-2 shadow-sm"
+      className="sticky top-0 z-[60] w-full py-2 px-4 text-center text-sm md:text-base font-bold flex items-center justify-center gap-2 shadow-sm"
       style={{ backgroundColor: bgColor, color: textColor }}
     >
        <Megaphone size={18} className="animate-pulse" />
@@ -89,8 +84,8 @@ const MainApp: React.FC = () => {
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Calculate announcement height for offset
-  const announcementHeight = globalSettings?.announcementBar?.enabled ? 40 : 0; 
+  // Calculate announcement height for offset is now handled by sticky stack automatically
+  const announcementHeight = 0; 
 
   const allTags = useMemo(() => {
     const tags = new Set<string>();
@@ -144,40 +139,33 @@ const MainApp: React.FC = () => {
     const shuffledPlants = shuffle(plants);
     const shuffledGeneral = shuffle(general);
     const shuffledCases = shuffle(cases);
-
-    // Pick 2 from each (if available)
-    const selectedPlants = shuffledPlants.slice(0, 2);
-    const selectedGeneral = shuffledGeneral.slice(0, 2);
-    const selectedCases = shuffledCases.slice(0, 2);
-
-    // Create a pool of remaining items
-    const remainingItems = [
-      ...shuffledPlants.slice(2),
-      ...shuffledGeneral.slice(2),
-      ...shuffledCases.slice(2)
+    
+    // Pick 2 from each
+    const picks = [
+        ...shuffledPlants.slice(0, 2),
+        ...shuffledGeneral.slice(0, 2),
+        ...shuffledCases.slice(0, 2)
     ];
 
-    // Pick 2 random items from the remaining pool
-    const randomExtras = shuffle(remainingItems).slice(0, 2);
+    // Fill remaining 2 spots with randoms from what's left
+    const remaining = allItems.filter(item => !picks.includes(item));
+    const randomFill = shuffle(remaining).slice(0, 2);
 
-    // Combine all selected items and shuffle final result
-    const finalSelection = [
-      ...selectedPlants,
-      ...selectedGeneral,
-      ...selectedCases,
-      ...randomExtras
-    ];
-
-    return shuffle(finalSelection).slice(0, 8); // Ensure max 8 just in case
+    return [...picks, ...randomFill];
 
   }, [allItems, activeFilter, searchQuery]);
 
-  const activeViewerItem = useMemo(() => {
-    if (!selectedItem) return null;
-    return allItems.find(i => i.id === selectedItem.id && i.type === selectedItem.type) || null;
-  }, [selectedItem, allItems]);
+  const handleSelectArticle = (id: string, type: 'plant' | 'general' | 'case') => {
+    setSelectedItem({ id, type });
+  };
 
-  const handleAdminAccess = () => {
+  const selectedArticleData = useMemo(() => {
+    if (!selectedItem) return null;
+    const list = selectedItem.type === 'plant' ? articles : selectedItem.type === 'general' ? generalArticles : caseStudies;
+    return list.find(a => a.id === selectedItem.id);
+  }, [selectedItem, articles, generalArticles, caseStudies]);
+
+  const handleLogoClick = () => {
     if (isAdminLoggedIn) {
       setIsAdminDashboardOpen(true);
     } else {
@@ -185,211 +173,145 @@ const MainApp: React.FC = () => {
     }
   };
 
-  const getIcon = (type: string) => {
-    switch(type) {
-      case 'plant': return <Sprout size={16} />;
-      case 'case': return <Briefcase size={16} />;
-      default: return <BookOpen size={16} />;
-    }
-  };
-
-  const getTypeLabel = (type: string) => {
-    switch(type) {
-      case 'plant': return 'צמח מרפא';
-      case 'case': return 'מקרה אירוע';
-      default: return 'מאמר מקצועי';
-    }
+  const handleLoginSuccess = () => {
+    setIsAdminLoggedIn(true);
+    setIsAdminDashboardOpen(true);
   };
 
   return (
-    <div className="bg-nature-50 text-nature-900 font-sans selection:bg-nature-sage selection:text-white relative pb-16">
-      
-      {/* 1. Announcement Bar (Fixed) */}
+    <div className="min-h-screen bg-nature-50 font-sans text-nature-900 selection:bg-nature-sage selection:text-white">
       <AnnouncementBar />
+      <Navbar onLogoClick={handleLogoClick} announcementHeight={announcementHeight} />
       
-      {/* 2. Navbar (Fixed) */}
-      <Navbar onLogoClick={handleAdminAccess} announcementHeight={announcementHeight} />
-      
-      <AdminLoginModal 
-        isOpen={isAdminLoginOpen} 
-        onClose={() => setIsAdminLoginOpen(false)}
-        onLoginSuccess={() => {
-          setIsAdminLoggedIn(true);
-          setIsAdminDashboardOpen(true);
-        }}
-      />
-      
-      {isAdminDashboardOpen && (
-        <AdminDashboard onClose={() => setIsAdminDashboardOpen(false)} />
-      )}
-      
-      {/* SCROLL SECTIONS */}
-      {/* Added pt to first section to account for fixed header */}
-      <HeroCarousel />
-      <AboutSection />
-
-      {/* --- KNOWLEDGE CENTER --- */}
-      <section id="knowledge-center" className="min-h-screen relative pb-20 bg-nature-50 snap-start pt-24">
+      <main className="relative">
+        <HeroCarousel />
+        <AboutSection />
         
-        <div className="pb-8 text-center px-4 bg-nature-50">
-          <h2 className="text-4xl font-serif font-bold text-nature-900 mb-2">מרכז הידע</h2>
-          <p className="text-gray-500 max-w-2xl mx-auto">
-            מאגר מידע מקיף הכולל צמחי מרפא, מאמרים וניתוחי מקרה מהקליניקה
-          </p>
-        </div>
+        {/* Knowledge Center */}
+        <section id="knowledge-center" className="min-h-screen py-20 px-4 md:px-8 bg-nature-50 relative scroll-mt-24">
+           <div className="container mx-auto max-w-7xl">
+             <div className="text-center mb-12">
+               <h3 className="text-nature-sage font-bold uppercase tracking-wider mb-2 flex items-center justify-center gap-2">
+                 <Sprout size={20} /> מאגר הידע
+               </h3>
+               <h2 className="text-4xl md:text-5xl font-serif text-nature-900">צמחים, מאמרים ומקרי בוחן</h2>
+             </div>
 
-        {/* STICKY CONTROL BAR */}
-        <div 
-           className="sticky z-40 bg-nature-100/95 backdrop-blur-md border-b border-nature-200 shadow-sm py-4 transition-all"
-           style={{ top: announcementHeight + 60 }} // Adjust based on navbar height
-        >
-          
-          {/* Visual Bridge */}
-          <div className="absolute -top-10 left-0 right-0 h-10 bg-nature-100/95"></div>
+             {/* Sticky Filter Bar */}
+             <div className="sticky top-[76px] z-40 bg-nature-50/95 backdrop-blur-md py-4 mb-8 shadow-sm border-b border-nature-200 -mx-4 px-4 md:-mx-8 md:px-8 transition-all duration-300">
+               <div className="absolute -top-6 left-0 right-0 h-6 bg-nature-50"></div> {/* Visual bridge to prevent gaps */}
+               <div className="container mx-auto max-w-7xl flex flex-col md:flex-row gap-4 justify-between items-center">
+                 
+                 {/* Filter Tabs */}
+                 <div className="flex p-1 bg-white rounded-full border border-nature-200 shadow-sm overflow-x-auto max-w-full no-scrollbar">
+                   <button onClick={() => setActiveFilter('all')} className={`px-6 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${activeFilter === 'all' ? 'bg-nature-darkSage text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'}`}>הכל</button>
+                   <button onClick={() => setActiveFilter('plant')} className={`px-6 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeFilter === 'plant' ? 'bg-white text-nature-darkSage border border-nature-darkSage shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}><Sprout size={14}/> צמחי מרפא</button>
+                   <button onClick={() => setActiveFilter('general')} className={`px-6 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeFilter === 'general' ? 'bg-white text-nature-darkSage border border-nature-darkSage shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}><BookOpen size={14}/> מאמרים</button>
+                   <button onClick={() => setActiveFilter('case')} className={`px-6 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeFilter === 'case' ? 'bg-white text-nature-darkSage border border-nature-darkSage shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}><Briefcase size={14}/> מקרי אירוע</button>
+                 </div>
 
-          <div className="container mx-auto px-4 max-w-7xl flex flex-col md:flex-row gap-4 items-center justify-between relative z-10">
-            
-            {/* Search Input */}
-            <div className="relative w-full md:w-1/3">
-              <input 
-                type="text" 
-                list="tags-list"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="חפשי נושא, צמח או תגית..."
-                className="w-full bg-white border border-gray-200 rounded-full py-3 px-10 text-gray-800 focus:border-nature-sage focus:ring-2 focus:ring-nature-sage/20 outline-none shadow-sm text-base transition-all"
-              />
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <datalist id="tags-list">
-                {allTags.map(tag => (
-                  <option key={tag} value={tag} />
-                ))}
-              </datalist>
-            </div>
-
-            {/* Filter Tabs */}
-            <div className="flex gap-2 overflow-x-auto pb-1 md:pb-0 w-full md:w-auto no-scrollbar scroll-smooth px-2">
-               {[
-                 { id: 'all', label: 'הכל' },
-                 { id: 'plant', label: 'צמחי מרפא' },
-                 { id: 'general', label: 'מאמרים' },
-                 { id: 'case', label: 'מקרי אירוע' },
-               ].map(tab => (
-                 <button
-                   key={tab.id}
-                   onClick={() => setActiveFilter(tab.id as any)}
-                   className={`px-6 py-2 rounded-full font-bold text-sm transition-all duration-300 whitespace-nowrap shadow-sm ${
-                     activeFilter === tab.id 
-                       ? 'bg-nature-darkSage text-white scale-105' 
-                       : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 hover:border-nature-sage'
-                   }`}
-                 >
-                   {tab.label}
-                 </button>
-               ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Grid Content */}
-        <div className="container mx-auto max-w-7xl px-4 py-12">
-          <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            <AnimatePresence>
-              {displayItems.map((item) => (
-                <motion.div
-                  layout
-                  layoutId={`card-${item.id}`}
-                  key={item.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  whileHover={{ y: -8 }}
-                  onClick={() => setSelectedItem({ id: item.id, type: item.type })}
-                  className="bg-white rounded-xl shadow-sm hover:shadow-2xl overflow-hidden border border-gray-100 cursor-pointer group flex flex-col h-full transition-all duration-300"
-                >
-                  <div className="relative h-56 overflow-hidden bg-gray-100">
-                    <img 
-                      src={item.image} 
-                      alt={item.title} 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                      loading="lazy"
+                 {/* Search */}
+                 <div className="relative w-full md:w-96 group">
+                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-nature-sage transition-colors" size={20} />
+                    <input 
+                      type="text"
+                      placeholder="חפשי נושא, צמח או תגית..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full bg-white border border-nature-200 rounded-full py-3 pr-12 pl-4 text-sm focus:outline-none focus:border-nature-sage focus:ring-4 focus:ring-nature-sage/10 transition-all shadow-sm"
                     />
-                    <div className="absolute top-3 right-3 bg-white/90 backdrop-blur text-nature-900 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
-                       {getIcon(item.type)}
-                       <span>{getTypeLabel(item.type)}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="p-5 flex-1 flex flex-col">
-                    <h3 className="text-xl font-bold text-nature-900 mb-2 font-serif group-hover:text-nature-darkSage transition-colors">
-                      {item.title}
-                    </h3>
-                    <p className="text-gray-500 text-sm line-clamp-3 mb-4 flex-1 leading-relaxed">
-                      {item.description}
-                    </p>
-                    <div className="flex flex-wrap gap-2 mt-auto pt-4 border-t border-gray-100">
-                      {item.tabs?.[0]?.tags?.slice(0, 3).map((tag: string) => (
-                        <span key={tag} className="text-[10px] bg-nature-100 text-nature-darkSage px-2 py-1 rounded font-bold uppercase tracking-wide">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
+                 </div>
+               </div>
+             </div>
 
-          {displayItems.length === 0 && (
-            <div className="text-center py-20 opacity-50">
-              <Sprout size={48} className="mx-auto mb-4 text-gray-400" />
-              <p className="text-xl text-gray-500">לא נמצאו תוצאות לחיפוש זה</p>
-            </div>
-          )}
-        </div>
-      </section>
-
-      <TestimonialsSection />
-      <ContactSection />
-
-      {/* FIXED FOOTER */}
-      <footer className="fixed bottom-0 left-0 right-0 z-40 bg-nature-900/95 backdrop-blur-md py-3 border-t border-nature-800 text-gray-400 text-sm shadow-[0_-5px_15px_rgba(0,0,0,0.3)]">
-        <div className="container mx-auto px-6 flex justify-between items-center">
-           <div className="flex gap-4 items-center">
-             <button onClick={() => setIsTermsOpen(true)} className="hover:text-white transition-colors underline text-xs md:text-sm">
-               תנאי שימוש והצהרת בריאות
-             </button>
-             <span className="hidden md:inline">|</span>
-             <p className="hidden md:block">© 2024 כל הזכויות שמורות</p>
+             {/* Content Grid */}
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <AnimatePresence mode="popLayout">
+                  {displayItems.map((item) => (
+                    <motion.div
+                      layout
+                      key={item.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.2 }}
+                      onClick={() => handleSelectArticle(item.id, item.type)}
+                      className="group bg-white rounded-2xl overflow-hidden border border-nature-100 hover:border-nature-300 hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col h-full"
+                    >
+                      <div className="h-48 overflow-hidden relative">
+                         <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                         <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-nature-900 shadow-sm flex items-center gap-1">
+                            {item.type === 'plant' ? <Sprout size={12}/> : item.type === 'general' ? <BookOpen size={12}/> : <Briefcase size={12}/>}
+                            {item.type === 'plant' ? 'צמח מרפא' : item.type === 'general' ? 'מאמר' : 'מקרה בוחן'}
+                         </div>
+                      </div>
+                      <div className="p-5 flex-1 flex flex-col">
+                         <h3 className="text-xl font-bold font-serif mb-1 group-hover:text-nature-darkSage transition-colors">{item.title}</h3>
+                         <p className="text-sm text-nature-sage font-medium mb-3">{item.subtitle}</p>
+                         <p className="text-gray-500 text-sm line-clamp-3 mb-4 flex-1">{item.description}</p>
+                         <div className="flex flex-wrap gap-2 mt-auto">
+                            {item.tabs?.[0]?.tags?.slice(0,2).map(tag => (
+                              <span key={tag} className="text-[10px] bg-nature-50 text-nature-800 px-2 py-1 rounded-md border border-nature-100">#{tag}</span>
+                            ))}
+                         </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+             </div>
+             
+             {displayItems.length === 0 && (
+               <div className="text-center py-20 opacity-60">
+                 <Sprout size={48} className="mx-auto mb-4 text-gray-300" />
+                 <p className="text-xl">לא נמצאו תוצאות לחיפוש זה.</p>
+               </div>
+             )}
            </div>
-           <p className="font-serif text-xl text-white font-bold">HerbalC</p>
+        </section>
+
+        <ContactSection />
+      </main>
+
+      {/* Fixed Footer */}
+      <footer className="bg-nature-900 text-white py-4 border-t border-white/10 relative z-30">
+        <div className="container mx-auto px-6 text-center">
+           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm opacity-60 hover:opacity-100 transition-opacity">
+             <p>© 2024 HerbalC - רפואה טבעית בהתאמה אישית.</p>
+             <button onClick={() => setIsTermsOpen(true)} className="hover:text-white underline decoration-white/30 hover:decoration-white">תנאי שימוש והצהרת בריאות</button>
+           </div>
         </div>
       </footer>
 
-      {/* Floating Accessibility Widget - Adjusted position to be above footer */}
-      <div className="mb-12">
-        <AccessibilityWidget />
-      </div>
-
+      {/* Modals & Overlays */}
       <AnimatePresence>
-        {activeViewerItem && (
+        {selectedItem && selectedArticleData && (
           <ArticleViewer 
-            article={activeViewerItem}
-            onSelectArticle={(id, type) => setSelectedItem({ id, type })}
-            onClose={() => setSelectedItem(null)}
+            article={selectedArticleData} 
+            onSelectArticle={handleSelectArticle}
+            onClose={() => setSelectedItem(null)} 
           />
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {isTermsOpen && <TermsModal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} />}
-      </AnimatePresence>
+      <AdminLoginModal 
+        isOpen={isAdminLoginOpen} 
+        onClose={() => setIsAdminLoginOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
+
+      {isAdminLoggedIn && isAdminDashboardOpen && (
+        <AdminDashboard onClose={() => setIsAdminDashboardOpen(false)} />
+      )}
+
+      <TermsModal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} />
+      
+      <AccessibilityWidget />
 
     </div>
   );
 };
 
-const App: React.FC = () => {
+export default function App() {
   return (
     <ErrorBoundary>
       <DataProvider>
@@ -397,6 +319,4 @@ const App: React.FC = () => {
       </DataProvider>
     </ErrorBoundary>
   );
-};
-
-export default App;
+}

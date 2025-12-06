@@ -1,5 +1,5 @@
 
-import { Article, SlideData, AboutData, ContactData, Testimonial, AnalyticsSession, InboxMessage, GlobalSettings } from './types';
+import { Article, SlideData, AboutData, ContactData, AnalyticsSession, InboxMessage, GlobalSettings } from './types';
 
 export const HERO_SLIDES: SlideData[] = [
   {
@@ -40,45 +40,6 @@ export const CONTACT_DATA: ContactData = {
   zoomAvailable: true,
   siteTagline: "הילה כהן - מטפלת בצמחי מרפא"
 };
-
-export const TESTIMONIALS: Testimonial[] = [
-  {
-    id: 't1',
-    name: 'מיכל כהן',
-    city: 'תל אביב',
-    content: 'הגעתי לענת עם בעיות עיכול שנמשכו שנים. אחרי חודש עם הפורמולה המדויקת שהיא רקחה לי, אני מרגישה אדם חדש. תודה רבה!',
-    approved: true,
-    date: '2023-10-15',
-    image: 'https://randomuser.me/api/portraits/women/44.jpg'
-  },
-  {
-    id: 't2',
-    name: 'דוד לוי',
-    city: 'רעננה',
-    content: 'מקצועיות ברמה הגבוהה ביותר. השילוב של הידע הקליני עם הגישה הנעימה והמכילה עושה את כל ההבדל.',
-    approved: true,
-    date: '2023-11-02',
-    image: 'https://randomuser.me/api/portraits/men/32.jpg'
-  },
-  {
-    id: 't3',
-    name: 'שרון אלון',
-    city: 'חיפה',
-    content: 'הטיפול בצמחי מרפא שינה את חיי. סוף סוף אני ישנה טוב בלילה ויש לי אנרגיה במהלך היום.',
-    approved: true,
-    date: '2023-12-10',
-    image: 'https://randomuser.me/api/portraits/women/68.jpg'
-  },
-  {
-    id: 't4',
-    name: 'יואב צור',
-    city: 'פרדס חנה',
-    content: 'ממליץ בחום! ענת ידעה לאבחן בדיוק את הבעיה ולתת פתרון טבעי שעובד.',
-    approved: true,
-    date: '2024-01-05',
-    image: 'https://randomuser.me/api/portraits/men/85.jpg'
-  }
-];
 
 export const ARTICLES: Article[] = [
   {
