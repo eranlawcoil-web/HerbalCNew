@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, ReactNode } from 'react';
+import React, { Component, useState, useMemo, useEffect, ReactNode } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroCarousel } from './components/HeroCarousel';
 import { ArticleViewer } from './components/ArticleViewer';
@@ -21,7 +21,7 @@ interface ErrorBoundaryState {
   hasError: boolean;
 }
 
-class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = { hasError: false };
 
   static getDerivedStateFromError(error: any) {
