@@ -557,7 +557,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                   <textarea value={testimonialForm.content} onChange={e => setTestimonialForm({...testimonialForm, content: e.target.value})} className="w-full bg-earth-950 p-2 rounded text-white border border-earth-700" rows={4} placeholder="תוכן ההמלצה" />
                   
                   <div className="space-y-1">
-                     <label className="text-xs text-gray-500">תמונת ממליץ (אופציונלי)</label>
+                     <label className="text-xs text-gray-500 block mb-1">תמונת ממליץ (אופציונלי)</label>
                      <ImageSelectionControl currentImage={testimonialForm.image || ''} onImageSelect={(url) => setTestimonialForm({...testimonialForm, image: url})} contextString={testimonialForm.name} />
                   </div>
 

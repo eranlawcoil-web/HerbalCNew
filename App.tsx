@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect, ReactNode } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroCarousel } from './components/HeroCarousel';
