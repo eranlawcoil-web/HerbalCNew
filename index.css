@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-snap-type: y proximity;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #f9fafb;
+  color: #1f2937;
+  font-family: 'Heebo', sans-serif;
+  transition: filter 0.3s ease;
+}
+
+/* Clean Light Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f3f4f6; 
+}
+::-webkit-scrollbar-thumb {
+  background: #d1d5db; 
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af; 
+}
+
+/* Accessibility Classes */
+body.access-grayscale {
+  filter: grayscale(100%);
+}
+
+body.access-large-text {
+  font-size: 125%;
+}
+
+body.access-high-contrast {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+body.access-high-contrast * {
+  background-color: #000 !important;
+  color: #fff !important;
+  border-color: #fff !important;
+}
+body.access-high-contrast img {
+  filter: grayscale(100%) contrast(120%);
+}
+body.access-high-contrast button, 
+body.access-high-contrast a {
+  text-decoration: underline !important;
+  color: #ffff00 !important;
+}
+
+body.access-links-underline a,
+body.access-links-underline button {
+  text-decoration: underline !important;
+}

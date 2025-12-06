@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Article, SlideData, AboutData, ContactData, Testimonial, AnalyticsSession, DataContextType, InboxMessage, GlobalSettings } from '../types';
-import { ARTICLES, HERO_SLIDES, ABOUT_DATA, CONTACT_DATA, GENERAL_ARTICLES, CASE_STUDIES, TESTIMONIALS, MOCK_ANALYTICS, MOCK_MESSAGES, GLOBAL_SETTINGS } from '../constants';
+import { Article, SlideData, AboutData, ContactData, AnalyticsSession, DataContextType, InboxMessage, GlobalSettings, Testimonial } from '../types';
+import { ARTICLES, HERO_SLIDES, ABOUT_DATA, CONTACT_DATA, GENERAL_ARTICLES, CASE_STUDIES, MOCK_ANALYTICS, MOCK_MESSAGES, GLOBAL_SETTINGS } from '../constants';
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
@@ -21,10 +21,37 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [aboutData, setAboutData] = useState<AboutData>(ABOUT_DATA);
   const [contactData, setContactData] = useState<ContactData>(CONTACT_DATA);
   const [authorizedEmails, setAuthorizedEmails] = useState<string[]>(['hilatams@gmail.com']);
-  const [testimonials, setTestimonials] = useState<Testimonial[]>(TESTIMONIALS);
   const [analyticsData, setAnalyticsData] = useState<AnalyticsSession[]>(MOCK_ANALYTICS);
   const [messages, setMessages] = useState<InboxMessage[]>(MOCK_MESSAGES);
   const [globalSettings, setGlobalSettings] = useState<GlobalSettings>(GLOBAL_SETTINGS);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([
+    {
+      id: 't1',
+      name: 'מיכל לוי',
+      city: 'תל אביב',
+      content: 'הטיפול בצמחי מרפא שינה את חיי. הגעתי עם בעיות עיכול קשות ואחרי חודש הרגשתי הקלה משמעותית. ממליצה בחום!',
+      date: '2023-10-01',
+      approved: true,
+      image: 'https://randomuser.me/api/portraits/women/44.jpg'
+    },
+    {
+      id: 't2',
+      name: 'דני כהן',
+      city: 'חיפה',
+      content: 'מקצועיות, הקשבה ודיוק. הפורמולה שקיבלתי עזרה לי לישון טוב יותר בלילות. תודה רבה!',
+      date: '2023-09-15',
+      approved: true
+    },
+    {
+      id: 't3',
+      name: 'נועה ברק',
+      city: 'הרצליה',
+      content: 'תהליך מדהים של ניקוי רעלים. הליווי האישי והתמיכה לאורך כל הדרך היו יוצאי דופן.',
+      date: '2023-11-20',
+      approved: true,
+      image: 'https://randomuser.me/api/portraits/women/68.jpg'
+    }
+  ]);
 
   // Plant Functions
   const addArticle = (article: Article) => {
@@ -87,19 +114,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setAuthorizedEmails(prev => prev.filter(e => e !== email.toLowerCase()));
   };
 
-  // Testimonial Functions
-  const addTestimonial = (testimonial: Testimonial) => {
-    setTestimonials(prev => [testimonial, ...prev]);
-  };
-
-  const updateTestimonial = (id: string, updatedFields: Partial<Testimonial>) => {
-    setTestimonials(prev => prev.map(t => t.id === id ? { ...t, ...updatedFields } : t));
-  };
-
-  const deleteTestimonial = (id: string) => {
-    setTestimonials(prev => prev.filter(t => t.id !== id));
-  };
-
   // Analytics
   const logVisit = () => {
     const sources: ('Google' | 'Facebook' | 'Direct' | 'Instagram')[] = ['Google', 'Facebook', 'Direct', 'Instagram'];
@@ -138,7 +152,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     Subject: ${msg.subject || 'N/A'}
     Content: ${msg.content || 'N/A'}
     `);
-    // alert("Simulated Email Sent to Admins!");
   };
 
   const markMessageRead = (id: string) => {
@@ -153,6 +166,10 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setGlobalSettings(prev => ({ ...prev, ...settings }));
   };
 
+  const addTestimonial = (t: Testimonial) => {
+    setTestimonials(prev => [...prev, t]);
+  };
+
   return (
     <DataContext.Provider value={{
       articles,
@@ -162,10 +179,10 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       aboutData,
       contactData,
       authorizedEmails,
-      testimonials,
       analyticsData,
       messages,
       globalSettings,
+      testimonials,
       addArticle,
       updateArticle,
       deleteArticle,
@@ -180,14 +197,12 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       updateContact,
       addAdmin,
       removeAdmin,
-      addTestimonial,
-      updateTestimonial,
-      deleteTestimonial,
       logVisit,
       addMessage,
       markMessageRead,
       deleteMessage,
-      updateGlobalSettings
+      updateGlobalSettings,
+      addTestimonial
     }}>
       {children}
     </DataContext.Provider>

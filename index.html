@@ -4,106 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HerbalC | רפואת צמחים טבעית</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              // Unified font stack as requested - Heebo for everything
-              sans: ['Heebo', 'sans-serif'],
-              serif: ['Heebo', 'sans-serif'], 
-            },
-            colors: {
-              earth: {
-                950: '#0d0f0d',
-                900: '#1a1d1a',
-                800: '#262a26',
-                700: '#384038',
-                accent: '#d4a373', // Sand/Gold - Kept for highlights
-              },
-              nature: {
-                50: '#f9fafb', // Main light bg
-                100: '#f3f4f6', // Secondary light
-                200: '#e5e7eb', // Borders
-                800: '#1f2937', // Dark text
-                900: '#111827', // Black text
-                sage: '#84a98c', // Primary Green
-                darkSage: '#52796f', // Darker Green
-                lightSage: '#cad2c5' // Light Green
-              }
-            }
-          }
-        }
-      }
-    </script>
-    <style>
-      html {
-        /* Changed from mandatory to proximity for gentler snapping */
-        scroll-snap-type: y proximity;
-        scroll-behavior: smooth;
-      }
-      body {
-        background-color: #f9fafb;
-        color: #1f2937;
-        font-family: 'Heebo', sans-serif;
-        transition: filter 0.3s ease;
-      }
-      /* Clean Light Scrollbar */
-      ::-webkit-scrollbar {
-        width: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #f3f4f6; 
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #d1d5db; 
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #9ca3af; 
-      }
-
-      /* Accessibility Classes */
-      body.access-grayscale {
-        filter: grayscale(100%);
-      }
-      
-      body.access-large-text {
-        font-size: 125%;
-      }
-      
-      body.access-high-contrast {
-        background-color: #000 !important;
-        color: #fff !important;
-      }
-      body.access-high-contrast * {
-        background-color: #000 !important;
-        color: #fff !important;
-        border-color: #fff !important;
-      }
-      body.access-high-contrast img {
-        filter: grayscale(100%) contrast(120%);
-      }
-      body.access-high-contrast button, 
-      body.access-high-contrast a {
-        text-decoration: underline !important;
-        color: #ffff00 !important;
-      }
-
-      body.access-links-underline a,
-      body.access-links-underline button {
-        text-decoration: underline !important;
-      }
-    </style>
   <script type="importmap">
 {
   "imports": {
     "react": "https://aistudiocdn.com/react@^19.2.1",
-    "react-dom/client": "https://aistudiocdn.com/react-dom@^19.2.1/client",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
     "react/": "https://aistudiocdn.com/react@^19.2.1/",
     "lucide-react": "https://aistudiocdn.com/lucide-react@^0.556.0",
@@ -117,5 +24,6 @@
 </head>
   <body>
     <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
