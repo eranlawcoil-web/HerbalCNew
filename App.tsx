@@ -4,7 +4,6 @@ import { HeroCarousel } from './components/HeroCarousel';
 import { ArticleViewer } from './components/ArticleViewer';
 import { AboutSection } from './components/AboutSection';
 import { ContactSection } from './components/ContactSection';
-// import { TestimonialsSection } from './components/TestimonialsSection'; // Hidden as requested
 import { TermsModal } from './components/TermsModal';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { AdminDashboard } from './components/AdminDashboard';
@@ -311,7 +310,6 @@ const MainApp: React.FC = () => {
         </div>
       </section>
 
-      {/* Testimonials removed */}
       <ContactSection />
 
       {/* FOOTER */}
